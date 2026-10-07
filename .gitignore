@@ -1,0 +1,36 @@
+# Node / frontend
+node_modules/
+.next/
+out/
+coverage/
+*.log
+
+# Python / backend
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Databases / local data
+*.sqlite3
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.tar
+
+# Build artifacts
+dist/
+build/
