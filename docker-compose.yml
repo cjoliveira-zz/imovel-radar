@@ -17,7 +17,22 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-imovelradar} -d ${POSTGRES_DB:-imovelradar}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  flyway:
+    image: flyway/flyway:10.16.0
+    container_name: imovelradar-flyway
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-imovelradar}
+      FLYWAY_USER: ${POSTGRES_USER:-imovelradar}
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:-imovelradar}
+    volumes:
+      - ./database/flyway/sql:/flyway/sql
+      - ./database/flyway/conf:/flyway/conf
+    command: -configFiles=/flyway/conf/flyway.conf -connectRetries=10 migrate
 
   api:
     build:
@@ -28,12 +43,14 @@ services:
     environment:
       API_HOST: ${API_HOST:-0.0.0.0}
       API_PORT: ${API_PORT:-8000}
-      DATABASE_URL: ${DATABASE_URL:-postgresql://imovelradar:imovelradar@postgres:5432/imovelradar}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://imovelradar:imovelradar@postgres:5432/imovelradar}
     ports:
       - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
 
   web:
     build:

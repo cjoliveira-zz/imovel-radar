@@ -1,0 +1,11 @@
+CREATE INDEX IF NOT EXISTS idx_sources_name_lower ON sources (LOWER(name));
+CREATE INDEX IF NOT EXISTS idx_properties_status_type ON properties (status, property_type);
+CREATE INDEX IF NOT EXISTS idx_addresses_city_state ON addresses (city, state);
+CREATE INDEX IF NOT EXISTS idx_property_features_property_id ON property_features (property_id);
+ALTER TABLE listings ALTER COLUMN updated_at SET DEFAULT NOW();
+ALTER TABLE properties ALTER COLUMN updated_at SET DEFAULT NOW();
+ALTER TABLE sources ALTER COLUMN updated_at SET DEFAULT NOW();
+ALTER TABLE addresses ALTER COLUMN updated_at SET DEFAULT NOW();
+ALTER TABLE geographic_locations ALTER COLUMN updated_at SET DEFAULT NOW();
+ALTER TABLE property_features ALTER COLUMN updated_at SET DEFAULT NOW();
+ALTER TABLE price_history ALTER COLUMN updated_at SET DEFAULT NOW();

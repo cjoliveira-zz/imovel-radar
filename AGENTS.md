@@ -61,6 +61,84 @@ A primeira fase é preparar a fundação técnica e documental do projeto. Não 
 - Use Docker Compose para ambiente local.
 - Manter documentação atualizada a cada mudança relevante.
 
+## Database Governance
+
+### Migration Authority
+Flyway is the single authoritative mechanism for database schema evolution in ImóvelRadar.
+
+All database schema changes MUST be implemented through versioned Flyway migrations.
+
+### Mandatory Rules
+
+- NEVER modify the controlled database schema manually in managed environments.
+- NEVER use Alembic.
+- NEVER use `Base.metadata.create_all()` as the production or controlled schema migration mechanism.
+- NEVER introduce a second migration framework.
+- NEVER modify an already-applied Flyway migration.
+- Every schema change MUST create a new Flyway migration.
+- All migrations MUST be committed to Git.
+- Migrations MUST be deterministic and reproducible.
+- Flyway MUST be used to validate and apply migrations.
+- Database credentials MUST NOT be hardcoded or committed to the repository.
+- PostgreSQL/PostGIS-specific capabilities MAY be used when justified by the architecture.
+- SQL migrations MUST be reviewed before being merged.
+- Tests MUST validate critical database constraints and relationships.
+- The database schema MUST be reproducible from the repository.
+
+### Migration Naming
+Use the Flyway versioned migration convention:
+
+```text
+V001__description.sql
+V002__description.sql
+V003__description.sql
+```
+
+Use descriptive names that explain the structural change.
+
+### Migration Immutability
+Once a migration has been applied to a controlled environment, its contents MUST NOT be modified.
+
+If a change is required, create a new migration.
+
+Example:
+
+```text
+V003__create_properties.sql
+V004__add_property_status.sql
+```
+
+Do NOT modify:
+
+```text
+V003__create_properties.sql
+```
+
+after it has been applied.
+
+### ORM and Database Schema
+If SQLAlchemy or another ORM is used:
+
+- the ORM is responsible for database access/persistence;
+- Flyway is responsible for schema evolution;
+- ORM metadata MUST NOT become an alternative migration mechanism.
+
+The domain model and persistence model should remain conceptually separated.
+
+### Validation
+Before completing database-related work, the agent MUST validate:
+
+1. Flyway migration syntax.
+2. Flyway migration state.
+3. Database constraints.
+4. Foreign keys.
+5. Critical indexes.
+6. PostGIS functionality when applicable.
+7. Existing application tests.
+8. Existing domain tests.
+
+Database-related changes MUST NOT break previously validated functionality.
+
 ## Fluxo de trabalho
 1. Entender a Spec ou requisito.
 2. Validar se a mudança atende ao objetivo atual.
